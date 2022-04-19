@@ -1,157 +1,129 @@
-import React, {Component} from 'react';
-
-import {Button, Modal, ModalBody, ModalHeader, Label, Row, Col} from 'reactstrap';
-
-import {Control, LocalForm, Errors} from 'react-redux-form';
-
-// validators
-const required = (val) => val && val.length; //value > 0
-const maxLength = (len) => (val) => !(val) || (val.length <= len);
-const minLength = (len) => (val) => (val) && (val.length >= len);
+import React from 'react';
+import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import { baseUrl } from "../shared/baseUrl";
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
+import { Loading } from "./LoadingComponent";
 
 
 
-// class
-
-class CommentForm extends Component{
-
-	// constructor 
-	constructor(props){
-		super(props);
-
-	// set state
-	this.state = {
-		isCommentFormModalOpen: false
-	};
-
-	this.toggleCommentFormModal = this.toggleCommentFormModal.bind(this);
-    this.handleCommentFormSubmit = this.handleCommentFormSubmit.bind(this);
+function RenderLeader({ leader }) {
+    return (
+        <Media className="mt-5">
+            <Media left className="mr-5">
+                <Media object src={baseUrl + leader.image} alt={leader.name} />
+            </Media>
+            <Media body>
+                <Media heading>{leader.name}</Media>
+                <p>{leader.designation}</p>
+                {leader.description}
+            </Media>
+        </Media>
+    );
 }
 
-handleCommentFormSubmit(values) {
-	console.log("Current State is: " + JSON.stringify(values));
-	alert("Current State is: " + JSON.stringify(values));
-
-
+function RenderContent({ leaders, isLoading, errMess }) {
+    if (isLoading) {
+        return <Loading />;
+    } else if (errMess) {
+        return <h4>{errMess}</h4>;
+    } else
+        return (
+            <Stagger in>
+                {leaders.map(leader => (
+                    <Fade in key={leader.id}>
+                        <RenderLeader key={leader.id} leader={leader} />
+                    </Fade>
+                ))}
+            </Stagger>
+        );
 }
 
-toggleCommentFormModal() {
-	this.setState({
-		isCommentFormModalOpen: !this.state.isCommentFormModalOpen
-	});
+
+function About(props) {
+
+    // const leaders = props.leaders.map((leader) => {
+    //     return (
+    //         <RenderLeader 
+    //             leader={leader} 
+    //             isLoading={props.leaderLoading}
+    //             errMess={props.leaderErrMess} 
+
+    //         />            
+    //     );
+    // });
+
+    return (
+        <div className="container">
+            <div className="row">
+                <Breadcrumb>
+                    <BreadcrumbItem><Link to="/home">Home</Link></BreadcrumbItem>
+                    <BreadcrumbItem active>About Us</BreadcrumbItem>
+                </Breadcrumb>
+                <div className="col-12">
+                    <h3>About Us</h3>
+                    <hr />
+                </div>
+            </div>
+            <div className="row row-content">
+                <div className="col-12 col-md-6">
+                    <h2>Our History</h2>
+                    <p>Started in 2010, Ristorante con Fusion quickly established itself as a culinary icon par excellence in Hong Kong. With its unique brand of world fusion cuisine that can be found nowhere else, it enjoys patronage from the A-list clientele in Hong Kong.  Featuring four of the best three-star Michelin chefs in the world, you never know what will arrive on your plate the next time you visit us.</p>
+                    <p>The restaurant traces its humble beginnings to <em>The Frying Pan</em>, a successful chain started by our CEO, Mr. Peter Pan, that featured for the first time the world's best cuisines in a pan.</p>
+                </div>
+                <div className="col-12 col-md-5">
+                    <Card>
+                        <CardHeader className="bg-primary text-white">Facts At a Glance</CardHeader>
+                        <CardBody>
+                            <dl className="row p-1">
+                                <dt className="col-6">Started</dt>
+                                <dd className="col-6">3 Feb. 2013</dd>
+                                <dt className="col-6">Major Stake Holder</dt>
+                                <dd className="col-6">HK Fine Foods Inc.</dd>
+                                <dt className="col-6">Last Year's Turnover</dt>
+                                <dd className="col-6">$1,250,375</dd>
+                                <dt className="col-6">Employees</dt>
+                                <dd className="col-6">40</dd>
+                            </dl>
+                        </CardBody>
+                    </Card>
+                </div>
+                <div className="col-12">
+                    <Card>
+                        <CardBody className="bg-faded">
+                            <blockquote className="blockquote">
+                                <p className="mb-0">You better cut the pizza in four pieces because
+                                    I'm not hungry enough to eat six.</p>
+                                <footer className="blockquote-footer">Yogi Berra,
+                                <cite title="Source Title">The Wit and Wisdom of Yogi Berra,
+                                    P. Pepe, Diversion Books, 2014</cite>
+                                </footer>
+                            </blockquote>
+                        </CardBody>
+                    </Card>
+                </div>
+            </div>
+
+
+            <div className="row row-content">
+                <div className="col-12">
+                    <h2>Corporate Leadership</h2>
+                </div>
+                
+                <div className="col-12">
+                    <div className="row">
+                        <Media list>
+                            <RenderContent
+                                leaders={props.leaders}
+                                isLoading={props.leaderLoading}
+                                errMess={props.leaderErrMess}
+                            />                              
+                        </Media>        
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    );
 }
 
-
-
-	render(){
-		return (
-			<React.Fragment>
-				<Button outline onClick={this.toggleCommentFormModal}>
-					<span className='fa fa-comments fa-lg'></span> Submit Comment
-				</Button>
-
-				{/* commentform  Modal */}
-                <Modal isOpen={this.state.isCommentFormModalOpen} toggle={this.toggleCommentFormModal} >
-                    <ModalHeader toggle={this.toggleCommentFormModal}> Submit Comment </ModalHeader>
-                    <ModalBody>
-                       
-                        <LocalForm onSubmit={(values) => this.handleCommentFormSubmit(values)}>
-                          
-                            {/* rating */}
-                            <Row className="form-group">
-                                <Label htmlFor="rating" md={12} >Rating</Label>
-                                <Col md={12}>
-                                    <Control.select model=".rating"
-                                        className="form-control"
-                                        name="rating"
-                                        id="rating"
-                                        validators={{
-                                            required
-                                        }}
-                                    >
-                                        <option>Please Select</option>
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Control.select>
-                                    <Errors
-                                        className="text-danger"
-                                        model=".author"
-                                        show="touched"
-                                        messages={{
-                                            required: 'Required',
-                                        }}
-                                    />  
-                                </Col>
-                            </Row>
-
-							{/* author */}
-							<Row className="form-group">
-                                <Label htmlFor="author" md={12}> Your Name </Label>
-                                <Col md={12}>
-                                    <Control.text model=".author" id="author" name="author"
-                                        placeholder="First Name"
-                                        className="form-control"
-                                        validators={{
-                                            required, minLength: minLength(3), maxLength: maxLength(15)
-                                        }}
-                                    />
-                                    <Errors
-                                        className="text-danger"
-                                        model=".author"
-                                        show="touched"
-                                        messages={{
-                                            required: 'Required',
-                                            minLength: 'Must be greater than 2 characters',
-                                            maxLength: 'Must be 15 characters or less'
-                                        }}
-                                    />                                    
-                                </Col>
-                            </Row>
-
-							{/* comment */}
-                            <Row className="form-group">
-                                <Label htmlFor="comment" md={12}>Comment</Label>
-                                <Col md={12}>
-                                    <Control.textarea model=".comment" id="comment" name="comment"
-                                        rows="6"
-                                        className="form-control"
-                                        validators={{
-                                            required
-                                        }}
-                                    />
-                                    <Errors
-                                        className="text-danger"
-                                        model=".author"
-                                        show="touched"
-                                        messages={{
-                                            required: 'Required',
-                                        }}
-                                    />  
-                                </Col>
-                            </Row>
-
-							{/* submit button */}
-                            <Row className="form-group">
-                                <Col>
-                                    <Button type="submit" color="primary">
-                                        Submit
-                                    </Button>
-                                </Col>
-                            </Row>
-
-							</LocalForm>
-
-					</ModalBody>
-					</Modal>
-
-				
-			</React.Fragment>
-		);
-
-	}	
-}
-
-export default CommentForm;
+export default About;    
